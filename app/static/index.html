@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChronosHunt - DFIR Threat Hunting & Adversary Timeline Engine</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="dfir-theme">
+    <!-- Header Navigation -->
+    <header class="dfir-header">
+        <div class="header-left">
+            <div class="brand-group">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                </div>
+                <div class="brand-title">
+                    <h1>CHRONOS<span>HUNT</span></h1>
+                    <span class="sub-label">SOC Threat Hunting & DFIR Timeline Reconstructor</span>
+                </div>
+            </div>
+
+            <!-- Case Selector Dropdown -->
+            <div class="case-selector-wrapper">
+                <label><i class="fa-solid fa-folder-open"></i> ACTIVE CASE:</label>
+                <select id="case-select" class="case-dropdown">
+                    <!-- Populated dynamically -->
+                </select>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <button id="btn-new-case" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Ingest Case Telemetry
+            </button>
+            <button id="btn-export-brief" class="btn btn-outline">
+                <i class="fa-solid fa-file-export"></i> Export DFIR Brief
+            </button>
+            <button id="btn-reset-samples" class="btn btn-secondary" title="Reset sample breach datasets">
+                <i class="fa-solid fa-rotate"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Metrics Ribbon -->
+    <section class="metrics-ribbon">
+        <div class="metric-card">
+            <div class="metric-icon cyan"><i class="fa-solid fa-briefcase"></i></div>
+            <div class="metric-info">
+                <span class="metric-label">Active Investigations</span>
+                <span class="metric-val" id="metric-cases">0</span>
+            </div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon blue"><i class="fa-solid fa-layer-group"></i></div>
+            <div class="metric-info">
+                <span class="metric-label">Correlated Artifacts</span>
+                <span class="metric-val" id="metric-artifacts">0</span>
+            </div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon red"><i class="fa-solid fa-skull"></i></div>
+            <div class="metric-info">
+                <span class="metric-label">Adversary Pivots Flagged</span>
+                <span class="metric-val text-red" id="metric-pivots">0</span>
+            </div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon purple"><i class="fa-solid fa-stopwatch"></i></div>
+            <div class="metric-info">
+                <span class="metric-label">Mean Attacker Dwell Time</span>
+                <span class="metric-val text-purple" id="metric-dwell">0s</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Case Overview Hero Banner -->
+    <section class="case-hero" id="case-hero-banner">
+        <div class="hero-left">
+            <div class="hero-badges">
+                <span class="badge threat-actor" id="case-actor">FIN7 / ALPHV</span>
+                <span class="badge incident-type" id="case-type">Ransomware</span>
+                <span class="case-id-tag" id="case-id">CASE-2026-081</span>
+            </div>
+            <h2 id="case-title">BlackCat (ALPHV) Multi-Stage Ransomware Outbreak</h2>
+            <div class="hero-meta">
+                <span><i class="fa-solid fa-building"></i> Target: <strong id="case-target">Global Logistics Corp</strong></span>
+                <span><i class="fa-solid fa-server"></i> Scoped Hosts: <strong id="case-hosts">2 Hosts</strong></span>
+                <span><i class="fa-solid fa-user-lock"></i> Compromised Users: <strong id="case-users">1 User</strong></span>
+            </div>
+            <p class="hero-summary" id="case-summary">Loading executive forensic summary...</p>
+        </div>
+
+        <!-- Dwell Time Counter Card -->
+        <div class="dwell-gauge-card">
+            <div class="dwell-icon-ring">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div class="dwell-info">
+                <span class="dwell-label">ADVERSARY DWELL TIME</span>
+                <span class="dwell-time-value" id="case-dwell-display">14m 42s</span>
+                <span class="dwell-subtext" id="case-window-display">10:14:02 UTC → 10:28:44 UTC</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Workspace -->
+    <main class="timeline-workspace">
+        <!-- Filter Toolbar -->
+        <div class="timeline-toolbar">
+            <div class="filter-group">
+                <span class="filter-label"><i class="fa-solid fa-filter"></i> Kill-Chain Phase:</span>
+                <div class="phase-pills" id="phase-filters">
+                    <button class="pill active" data-phase="ALL">All Events</button>
+                    <button class="pill" data-phase="INITIAL_ACCESS">Initial Access</button>
+                    <button class="pill" data-phase="EXECUTION">Execution</button>
+                    <button class="pill" data-phase="PRIV_ESC">Privilege Escalation</button>
+                    <button class="pill" data-phase="CRED_ACCESS">Credential Access</button>
+                    <button class="pill" data-phase="LATERAL_MOVEMENT">Lateral Movement</button>
+                    <button class="pill" data-phase="IMPACT">Impact / Ransom</button>
+                    <button class="pill" data-phase="EXFILTRATION">Exfiltration</button>
+                </div>
+            </div>
+
+            <div class="search-group">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="timeline-search" placeholder="Search commands, tools, hashes, IPs...">
+            </div>
+        </div>
+
+        <!-- Chronological Visual Feed -->
+        <div class="timeline-stream-container">
+            <div class="timeline-line"></div>
+            <div class="events-feed" id="events-feed">
+                <!-- Dynamically rendered timeline event cards -->
+                <div class="loading-state">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Reconstructing chronological forensics...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal: Ingest New Telemetry / Case -->
+    <div class="modal-backdrop" id="case-modal" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-folder-plus text-cyan"></i> Ingest Multi-Source Forensic Artifacts</h3>
+                <button class="close-btn" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-desc">Ingest raw JSON dumps from Sysmon, Windows Prefetch, PowerShell 4104, Security Event Log 4624/4672, or Web Server access logs. ChronosHunt will automatically correlate timestamps and construct the attack timeline.</p>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>Investigation Case Name</label>
+                        <input type="text" id="new-case-name" class="form-control" placeholder="e.g., Q4 Exchange Intrusion Investigation">
+                    </div>
+                    <div class="form-group half">
+                        <label>Suspected Threat Actor</label>
+                        <input type="text" id="new-threat-actor" class="form-control" placeholder="e.g., APT28 / Fancy Bear">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>Target Organization</label>
+                        <input type="text" id="new-target-org" class="form-control" placeholder="e.g., Acme Health Systems">
+                    </div>
+                    <div class="form-group half">
+                        <label>Incident Classification</label>
+                        <select id="new-incident-type" class="form-control">
+                            <option value="Ransomware Outbreak">Ransomware Outbreak</option>
+                            <option value="APT Espionage">APT Espionage</option>
+                            <option value="Web Application Breach">Web Application Breach</option>
+                            <option value="Insider Threat & IP Theft">Insider Threat & IP Theft</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Multi-Artifact JSON Array</label>
+                    <textarea id="new-artifacts-json" class="form-control code-font" rows="7" placeholder='[
+  {"timestamp": "2026-10-29T12:00:00Z", "source_type": "SYSMON_PROC", "host": "WS-01", "Image": "cmd.exe", "CommandLine": "whoami /all"},
+  {"timestamp": "2026-10-29T12:05:00Z", "source_type": "PREFETCH", "executable": "PROCDUMP.EXE"}
+]'></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+                <button class="btn btn-primary" id="modal-submit"><i class="fa-solid fa-hourglass-start"></i> Reconstruct Timeline</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="dfir-toast">Case timeline reconstructed!</div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

